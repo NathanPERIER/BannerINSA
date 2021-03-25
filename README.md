@@ -10,6 +10,7 @@ This script was originally written in Bash but I also translated it in Python fo
 # How to use the script
 
 ```Bash
+not@pancake:~$ ./bannerINSA.sh -h
 bannerINSA.sh [--<insa>] [-t text] [-s subtitle] [--center | --left | --right] [-c colour] [--fill | --corner] [--bar | --sep]
 ```
 
@@ -53,9 +54,9 @@ bannerINSA.sh [--<insa>] [-t text] [-s subtitle] [--center | --left | --right] [
 
 # Assets
 
-The terminal I use in the screenshots is gnome-terminal (the default terminal in Ubuntu). My colour profile is [Blood Moon](https://github.com/dguo/blood-moon) adapted for gnome-terminal. 
+The terminal I use in the screenshots is gnome-terminal (the default terminal in Ubuntu). My colour profile is [Blood Moon](https://github.com/dguo/blood-moon) adapted for gnome-terminal. This theme has a pink-ish dark red, which is why screenshots with the `--fill` option may look like they are pink/magenta. They actually have the default colour, which is red.
 
-The ASCII art text was generated using the font Colossal in a generator like [this one](https://patorjk.com/software/taag/#p=display&f=Colossal&t=INSA) (which is basically an interface running [FIGlet](http://www.figlet.org/)) and then modified the 'A' just a bit to resemble the INSA logo.
+The ASCII art text was generated using the font Colossal in a generator like [this one](https://patorjk.com/software/taag/#p=display&f=Colossal&t=INSA) (which is basically an interface running [FIGlet](http://www.figlet.org/)), I then modified the 'A' just a bit to mimic the INSA logo.
 
 
 :pancakes:
