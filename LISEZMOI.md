@@ -4,12 +4,7 @@ Ce script permet d'afficher une bannière du logo INSA dans une console (par exe
 
 ![Exemple de résultat produit par le script](preview/banner.png)
 
-Le script était originellement en Bash mais je l'ai aussi traduit en Python pour ceux qui utilisent d'autres interpréteurs de commandes (comme [fish](https://github.com/fish-shell/fish-shell)), cependant il requiert Python 3.6 au moins car j'utilise des f-string absolument partout. Il s'agit d'un script best-effort, il n'affichera donc (~~normalement~~) jamais de message d'erreur dans la console. Si un paramètre est invalide, la valeur par défaut sera utilisée à la place. 
-
-
-# Motivations 
-
-Faut croire que je n'avais que ça à faire
+Le script était originellement en Bash mais je l'ai aussi traduit en Python pour ceux qui utilisent d'autres interpréteurs de commandes (comme [fish](https://github.com/fish-shell/fish-shell)). Il s'agit d'un script best-effort, il n'affichera donc (~~normalement~~) jamais de message d'erreur dans la console. Si un paramètre est invalide, la valeur par défaut sera utilisée à la place. 
 
 
 # Comment utiliser le script
@@ -19,7 +14,7 @@ not@pancake:~$ ./bannerINSA.sh -h
 bannerINSA.sh [--<insa>] [-t text] [-s subtitle] [--center | --left | --right] [-c colour] [--fill | --corner] [--bar | --sep]
 ```
 
-* `--<insa>` : remplacez `<insa>` avec le nom de l'école que vous voulez afficher. Les options sont `lyon`, `rennes`,`rouen`, `toulouse`, `strasbourg`, `cvl`, `hdf` et `euromed`, la valeur par défaut est `rennes`.
+* `--<insa>` : remplacez `<insa>` avec le nom de l'école que vous voulez afficher. Les options sont `lyon`, `rennes`, `rouen`, `toulouse`, `strasbourg`, `cvl`, `hdf` et `euromed`, la valeur par défaut est `rennes`.
 
 ![bannière avec le nom de l'INSA Lyon](preview/banner-school.png)
 
@@ -36,7 +31,7 @@ bannerINSA.sh [--<insa>] [-t text] [-s subtitle] [--center | --left | --right] [
 ![sous-titre aligné à gauche](preview/banner-subtitle-left.png)
 ![sous-titre aligné à droite](preview/banner-subtitle-right.png)
 
-* `-c colour` : détermine la couleur du logo, les options sont `white`, `red`, `yellow`, `green`, `blue`, `magenta`, `cyan` et `black`, la valeur par défaut est `red`. Il est à noter que ces couleurs représentent les 8 couleurs affichables par un terminal, il est donc possible que vous obteniez une couleur qui ne correspond pas au nom de l'option en fonction de votre thème de couleurs, en particulier avec un thème clair (ce qui n'a pas du tout été testé).
+* `-c colour` : détermine la couleur du logo, les options sont `white`, `red`, `yellow`, `green`, `blue`, `magenta`, `cyan`, `black` et `8bit-<col>` où `<col>` est un nombre entre 0 et 255 représentant une couleur dans la [palette 256 couleurs](https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit) de votre terminal. La valeur par défaut est `red`. Il est à noter que l'affichage des couleurs dépend du thème de votre terminal, il est donc possible que vous obteniez une couleur qui ne correspond pas au nom de l'option. Par exemple, si vous utilisez un thème clair la couleur `black` sera probablement grise claire et la couleur `white` sera en fait noire. Ceci ne devrait pas affecter les couleurs 8-bits supérieures ou égales à 16.
 
 ![logo de couleur magenta](preview/banner-colour.png)
 
@@ -52,14 +47,23 @@ bannerINSA.sh [--<insa>] [-t text] [-s subtitle] [--center | --left | --right] [
 
 ![bannière avec une barre](preview/banner-bar.png)
 
-* `--sep` : Affiche un séparateur entre le nom de l'école et le texte. Cette option est mutuellement exclusive avec `--bar` car elles ne rendent pas bien ensemble.
+* `--sep` : Affiche un séparateur entre le nom de l'école et le texte. Cette option est mutuellement exclusive avec `--bar`.
 
 ![bannière avec un séparateur](preview/banner-sep.png)
 
 
+# Dépendances 
+
+La principale chose dont vous aurez besoin est un terminal qui est capable d'afficher des palettes de 8/16 couleurs (ce qui est le cas la grande majorité du temps). Si vous utilisez une couleur en `8bit-qqchose`, vous aurez besoin d'un terminal capable de gérer des [palettes de 256 couleurs](https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit).
+
+Pour le script Python, il vous faudra Python 3.6 au minimum car j'utilise des f-string absolument partout.
+
+Pour le script Bash, n'importe quelle version récente devrait faire l'affaire mais des versions plus anciennes devraient fonctionner aussi (testé avec bash 5.0.3 et 5.0.17).
+
+
 # Assets
 
-Le terminal que j'utilise dans les captures d'écran est gnome-terminal (le terminal par défaut sur Ubuntu). Le profil de couleur est [Blood Moon](https://github.com/dguo/blood-moon) adapté pour gnome-terminal. Ce thème a un rouge foncé qui tend vers le rose, ce qui explique pourquoi les captures d'écran avec l'option `--fill` peuvent sembler rose/magenta. En réalité, elles ont bien la couleur par défaut qui est le rouge.
+Le terminal que j'utilise dans les captures d'écran est gnome-terminal (le terminal par défaut sur Ubuntu). Le profil de couleur est [Blood Moon](https://github.com/dguo/blood-moon). Ce thème a un rouge qui tend un vers le rose, ce qui explique pourquoi les captures d'écran avec l'option `--fill` peuvent sembler rose/magenta.
 
 Le text en ASCII art a été généré avec la police Colossal dans un générateur comme [celui-ci](https://patorjk.com/software/taag/#p=display&f=Colossal&t=INSA) (qui est basiquement une interface qui fait tourner [FIGlet](http://www.figlet.org/)), j'ai ensuite modifié un peu le 'A' pour qu'il ressemble plus au logo INSA.
 

@@ -1,15 +1,16 @@
 #!/bin/bash
+# encoding: UTF-8
+# file: bannerINSA.sh
+# author: Nathan PERIER
+# created: 2021/03/12
+# last modified: 2021/05/05
+# github page: https://github.com/NathanPERIER/BannerINSA
 
 rep () {
 	if [ $2 -ge 1 ]
 	then
 		printf "$1%.0s" $(eval "echo {1..$(($2))}")
 	fi
-}
-
-len () {
-	l=$(echo "$1" | wc -m)
-	echo "$((l - 1))"
 }
 
 
@@ -38,14 +39,13 @@ then
 	esac
 fi 
 
-insa_len=$(len "$insa")
+insa_len=${#insa}
 maxlen=$( (( $insa_len > 17 )) && echo "$insa_len" || echo '17' )
 
 if [ $# -ge 2 ] && [ $1 = '-t' ]
 then 
 	text="$2"
-	textlen=$(echo "$2" | wc -m)
-	((textlen--))
+	textlen=${#text}
 	shift 2
 else 
 	text=""
@@ -57,8 +57,7 @@ maxlen=$( (( $textlen > $maxlen )) && echo "$textlen" || echo "$maxlen" )
 if [ $# -ge 2 ] && [ $1 = '-s' ]
 then 
 	subtitle="$2"
-	subtitlelen=$(echo "$2" | wc -m)
-	((subtitlelen--))
+	subtitlelen=${#2}
 	align='c'
 	if [ $subtitlelen -gt $((maxlen + 46)) ]
 	then
@@ -80,6 +79,7 @@ fi
 
 if [ $# -ge 2 ] && [ $1 = '-c' ]
 then
+	palette=2
 	case $2 in 
 		'black') col_code=0 ;;
 		'green') col_code=2 ;;
@@ -88,6 +88,7 @@ then
 		'magenta') col_code=5 ;;
 		'cyan') col_code=6 ;;
 		'white') col_code=7 ;;
+		'8bit-'*) col_code=${2#*-}; if [[ "$col_code" =~ [0-9]{1,3} ]] && [[ $col_code -lt 256 ]]; then palette=8; else col_code=1; fi;;
 		*) col_code=1 ;;		# Red is default
 	esac
 	shift 2
@@ -95,7 +96,11 @@ else
 	col_code=1
 fi
 
-text_col='[1;3'"$col_code"'m'
+if [[ $palette -eq 2 ]]; then
+	text_col="[1;3${col_code}m"
+else 
+	text_col="[38;5;${col_code}m"
+fi
 reset='[0m'
 corner_col=''
 
@@ -105,11 +110,16 @@ then
 	if [ $1 = '--fill' ]
 	then
 		fill='true'
-		bars_col='[0;3'"$col_code"'m'
-		text_col='[1;4'"$col_code"'m'
-		if [ "$col_code" = '7' ]
-		then
-			text_col="$text_col""[1;30m"
+		if [[ $palette -eq 2 ]]; then
+			bars_col="[0;3${col_code}m"
+			text_col="[1;4${col_code}m"
+			if [ "$col_code" = '7' ]
+			then
+				text_col="${text_col}[1;30m"
+			fi
+		else
+			bars_col="$text_col"
+			text_col="[48;5;${col_code}m"
 		fi
 		shift
 	elif [ $1 = '--corner' ]
@@ -139,7 +149,7 @@ fi
 if [ $fill = 'true' ]
 then
 	padding=$(rep '▄' $((maxlen - 16)))"$reset"
-	echo " $bars_col▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄$padding"
+	echo " ${bars_col}▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄$padding"
 fi
 padding=$(rep ' ' $((maxlen - 16)))"$reset"
 echo " $text_col 8888888 888b    888  .d8888b.  8888b $corner_col Y8888 ╻                  $padding"
@@ -148,7 +158,7 @@ echo " $text_col   888   88888b  888 Y88b.      888Y88b $corner_col Y88 ┃ DES 
 echo " $text_col   888   888Y88b 888  \"Y888b.   888 Y88b $corner_col Y8 ┃ APPLIQUÉES       $padding"
 temp="$padding"
 padding=$(rep ' ' $((maxlen - insa_len + 1)))"$reset"
-echo " $text_col   888   888 Y88b888     \"Y88b. 888  Y88b $corner_col Y ┃ $insa""$padding"
+echo " $text_col   888   888 Y88b888     \"Y88b. 888  Y88b $corner_col Y ┃ ${insa}${padding}"
 padding="$temp"
 if [ $sep = 'true' ] 
 then 
@@ -158,7 +168,7 @@ else
 fi
 temp=$padding
 padding=$(rep ' ' $((maxlen - textlen + 1)))"$reset"
-echo " $text_col   888   888   Y8888 Y88b  d88P 8888888888b $corner_col ┃ $text""$padding"
+echo " $text_col   888   888   Y8888 Y88b  d88P 8888888888b $corner_col ┃ ${text}${padding}"
 padding=$temp
 echo " $text_col 8888888 888    Y888  \"Y8888P\"  888     Y88b $corner_col╹                  $padding"
 if [ $subtitlelen -gt 0 ]
@@ -179,12 +189,12 @@ then
 		left=$(( (maxlen + 46 - subtitlelen) / 2 ))
 		right=$(( maxlen + 46 - subtitlelen - left ))
 	fi
-	echo " $text_col $(rep ' ' $left)""$subtitle""$(rep ' ' $right) $reset"
+	echo " $text_col $(rep ' ' $left)${subtitle}$(rep ' ' $right) $reset"
 fi
 if [ $fill = 'true' ]
 then
 	padding=$(rep '▀' $((maxlen - 16)))"$reset"
-	echo " $bars_col▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀$padding"
+	echo " ${bars_col}▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀$padding"
 fi
 
 
