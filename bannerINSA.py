@@ -58,6 +58,35 @@ def translateCol(c) :
 	return f"\033[38;2;{col_code[0]};{col_code[1]};{col_code[2]}m"
 
 
+def splitLines(text, maxlen) :
+	res = []
+	for s in text.split('\n') :
+		index = 0
+		while index >= 0 :
+			i = s.find(' ', index+1)
+			if i < 0 and len(s) <= maxlen : 
+				res.append(s)
+				index = -1
+			elif i > maxlen or i < 0 :
+				if index == 0 :
+					res.append(s[:maxlen])
+					s = s[maxlen:]
+				else :
+					res.append(s[:index])
+					s = s[index+1:]
+				index = 0 if len(s) > 0 else -1
+			else :
+				index = i
+	return res
+
+
+def properCentre(line, maxlen) :
+	left = (maxlen - len(line)) // 2
+	right = maxlen - len(line) - left
+	return (" " * left + line + " " * right)
+
+
+
 if len(sys.argv) > 1 :
 	if sys.argv[1] in ['-h', '--help'] :
 		print(f"usage : {sys.argv[0]} [--<insa>] [-t text] [-s subtitle] [--center | --left | --right] [-c colour] [--fill | --corner] [--bar | --sep] [--compatibility]")
@@ -95,12 +124,10 @@ logo_len = maxlen + 48
 
 
 if i+1 < len(sys.argv) and sys.argv[i] == '-s' :
-	subtitle = sys.argv[i+1]
-	if len(subtitle) > logo_len - 2 : 
-		subtitle = ''
+	subtitle = splitLines(sys.argv[i+1], logo_len-2)
 	i += 2
 else :
-	subtitle=''
+	subtitle = None
 
 
 align = 'c'
@@ -200,27 +227,27 @@ logo = [
 	f"{text_col} 8888888 888    Y888  \"Y8888P\"  {tab_a[7]}888     Y88b {corner_col}{chars[2]}                  {fixed_padding}"
 ]
 
-if len(subtitle) > 0 :
-	if bar :
-		padding = chars[3] + chars[4] * (logo_len - 4) + chars[5]
-	else :
-		padding = ' ' * (logo_len - 2)
+if subtitle is not None :
+	if compatibility_mode and bars_col is not None :
+		text_col = text_col[:-1]
+	
+	padding = chars[3] + chars[4] * (logo_len - 4) + chars[5] if bar else ' ' * (logo_len - 2)
 	logo.append(f"{text_col} {padding} {reset}")
-	if align == 'r' : 
-		logo.append(f"{text_col} {subtitle.rjust(logo_len - 3)} {reset}")
+	
+	if align == 'r' :
+		justify = lambda line : line.rjust(logo_len - 2)
 	elif align == 'l' :
-		logo.append(f"{text_col} {subtitle.ljust(logo_len - 3)} {reset}")
-	else :
-		left = (logo_len - 2 - len(subtitle)) // 2
-		right = logo_len - 2 - len(subtitle) - left
-		logo.append(f"{text_col} {' ' * left + subtitle + ' ' * right} {reset}")
+		justify = lambda line : line.ljust(logo_len - 2)
+	else : 
+		justify = lambda line : properCentre(line, logo_len - 2)
+	
+	logo.extend([f"{text_col} {justify(line)} {reset}" for line in subtitle])
 
 if bars_col is not None :
 	logo.insert(0, f"{bars_col}{chars[6] * logo_len}{reset}")
 	logo.append(f"{bars_col}{chars[7] * logo_len}{reset}")
 
 if compatibility_mode and bars_col is not None :
-	print(logo_len)
 	print('')
 	for line in logo :
 		print('  ' + line)
